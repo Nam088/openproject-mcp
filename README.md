@@ -1,123 +1,115 @@
 # OpenProject MCP Server
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
-[![FastMCP](https://img.shields.io/badge/FastMCP-4.x-brightgreen.svg)](https://github.com/punkpeye/fastmcp)
-[![OpenProject API](https://img.shields.io/badge/OpenProject%20API-v3-blue.svg)](https://www.openproject.org/docs/api/)
-[![Test Coverage](https://img.shields.io/badge/Coverage-91.1%25-success.svg)](https://vitest.dev/)
-[![Tools Count](https://img.shields.io/badge/Tools-90%20Registered-blueviolet.svg)](#-registered-tools-catalog)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square)](https://www.typescriptlang.org/)
+[![FastMCP](https://img.shields.io/badge/FastMCP-4.x-green?style=flat-square)](https://github.com/punkpeye/fastmcp)
+[![OpenProject API](https://img.shields.io/badge/OpenProject%20API-v3-blue?style=flat-square)](https://www.openproject.org/docs/api/)
+[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen?style=flat-square)](https://vitest.dev/)
+[![Coverage](https://img.shields.io/badge/Coverage-91%25-brightgreen?style=flat-square)](https://vitest.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
-An enterprise-grade, high-performance [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for **OpenProject REST API v3**, built with **Node.js/TypeScript** and **FastMCP**.
-
-This server provides **100% full coverage of OpenProject REST API v3** with **90 Type-Safe MCP Tools across 10 Suites**, **4 AI Workflow Prompts**, **3 Dynamic URI Resource Templates**, built-in **Optimistic Locking (`lockVersion`) auto-resolution**, **ISO 8601 Duration Parsing**, **LRU In-Memory Caching**, **Dual Transports (stdio & httpStream)**, and **Strict Clean Architecture**.
+An enterprise Model Context Protocol (MCP) server for OpenProject REST API v3, built with Node.js, TypeScript, and FastMCP.
 
 ---
 
-## 📑 Table of Contents
+## Overview
 
-- [Key Features](#-key-features)
-- [Architecture Overview](#-architecture-overview)
-- [Prerequisites](#-prerequisites)
-- [Installation & Quick Start](#-installation--quick-start)
-- [Configuration Reference](#-configuration-reference)
-- [Client Integration Guides](#-client-integration-guides)
-  - [Claude Desktop](#1-claude-desktop)
-  - [Cursor IDE](#2-cursor-ide)
-  - [Google Antigravity & Agentic Tools](#3-google-antigravity--agentic-tools)
-- [CLI Diagnostics & Subcommands](#-cli-diagnostics--subcommands)
-- [AI Prompts & Resource Templates](#-ai-prompts--resource-templates)
-- [Registered Tools Catalog](#-registered-tools-catalog)
-  - [Developer Productivity Suite](#10-developer-productivity-suite-7-tools)
-  - [Time Tracking & Auditing Suite](#2-time-tracking--auditing-suite-10-tools)
-  - [Work Packages Suite](#1-work-packages-suite-16-tools)
-- [Testing & Quality Assurance](#-testing--quality-assurance)
-- [License](#-license)
+OpenProject MCP Server implements the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) to bridge OpenProject instances with AI development assistants and agentic environments (such as Claude Desktop, Cursor IDE, and Google Antigravity).
+
+The server exposes 90+ type-safe tools across 10 functional domains, handling complex HAL+JSON schemas, optimistic concurrency conflicts (`lockVersion`), token-optimized payload formatting, and automated developer lifecycle actions.
 
 ---
 
-## 🚀 Key Features
+## Table of Contents
 
-- **90 Type-Safe MCP Tools across 10 Domain Suites**: Developer Productivity Suite, Work Packages, Time Tracking & Spent Hours, Projects, Relations, Metadata (Statuses, Types, Priorities, Categories), Users & Memberships, Versions & Sprints, Attachments, and Saved Queries / Notifications.
-- **Developer 1-Click Shortcuts**:
-  - `quick_start_task`: Moves task to _In Progress_, assigns to you, sets initial progress %, and prepares a standardized Git branch.
-  - `quick_complete_task`: Moves task to _Resolved/Ready for QA_, sets 100% done, logs spent hours, and posts resolution comment in 1 atomic operation.
-  - `get_developer_daily_standup`: Auto-generates your Agile Daily Standup report (Yesterday effort & completed tasks, Today in-progress tasks, Blockers).
-  - `get_task_dependency_graph`: Renders interactive **Mermaid flowchart** of parents, sub-tasks, and blocking relations.
-  - `generate_qa_checklist`: Auto-generates exhaustive QA & PR acceptance checklists.
-- **Automatic `lockVersion` Resolution**: Never suffer from `409 Conflict` optimistic locking errors when updating tasks; the server automatically fetches and merges the latest `lockVersion` before patching.
-- **Comprehensive Time Tracking & ISO Duration Auditing**: Native support for ISO 8601 Durations (`PT1H`, `PT30M`), decimal hours (`1.5` $\rightarrow$ `PT1H30M`), daily target auditing (`get_daily_time_summary`), and weekly unlogged work detection (`audit_unlogged_work`).
-- **4 AI Engineering Prompts**:
-  - `task_breakdown_and_estimate`: WBS breakdown with ISO durations and QA acceptance checklists.
-  - `sprint_planning`: Backlog capacity planning, velocity analysis, and task prioritization.
-  - `generate_sprint_report`: Executive delivery and sprint completion reporting.
-  - `triage_work_package`: Root cause analysis, reproduction steps, and priority triage.
-- **3 Dynamic URI Resource Templates**: Direct read access via `openproject://projects/{id}`, `openproject://work_packages/{id}`, and `openproject://time_entries/{id}`.
-- **Security & Access Control**:
-  - **Read-Only Mode (`OPENPROJECT_READ_ONLY_MODE=true`)**: Safely blocks all mutating operations (`POST`, `PATCH`, `DELETE`).
-  - **Project Allowlist (`OPENPROJECT_PROJECT_ALLOWLIST`)**: Restricts LLM access to authorized projects only.
-- **Dual MCP Transports**: Supports both standard `stdio` transport and `httpStream` (SSE/HTTP Stream with custom port binding).
+- [Features](#features)
+- [Architecture](#architecture)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Client Integration](#client-integration)
+  - [Claude Desktop](#claude-desktop)
+  - [Cursor IDE](#cursor-ide)
+  - [Google Antigravity](#google-antigravity)
+- [CLI Reference](#cli-reference)
+- [Tools Catalog](#tools-catalog)
+- [AI Prompts and Resources](#ai-prompts-and-resources)
+- [Development and Testing](#development-and-testing)
+- [License](#license)
 
 ---
 
-## 🏛️ Architecture Overview
+## Features
+
+- **Full REST API v3 Coverage**: Over 90 type-safe MCP tools covering work packages, time tracking, projects, relations, metadata, users, versions, attachments, and saved queries.
+- **Optimistic Locking Auto-Resolution**: Automatically reconciles `lockVersion` during work package updates to eliminate HTTP 409 conflict errors.
+- **Token-Efficient Formatting**: Built-in HTML-to-Markdown normalization and `compact: true` mode to minimize LLM context window utilization.
+- **Developer Productivity Suite**: Single-step commands for task initialization, QA completion, daily standup aggregation, Git branch generation, and QA checklists.
+- **Time Tracking and ISO 8601 Durations**: Native support for ISO durations (`PT1H30M`), decimal hour inputs, unlogged work audits, and daily target tracking.
+- **Access Controls and Safety**: Configurable read-only mode and project allowlists to prevent unauthorized mutations.
+- **Dual Transport Support**: Operates over standard I/O (`stdio`) or HTTP stream (`httpStream` / SSE) transports.
+- **Caching and Fault Tolerance**: LRU in-memory caching with a 60-second TTL and automatic HTTP retry mechanisms.
+
+---
+
+## Architecture
 
 ```
 src/
-├── cli.ts                              # CLI (doctor, tools, setup)
-├── config.ts                           # Environment configuration (.env, normalizer)
-├── index.ts                            # Composition Root & FastMCP startup
+├── cli.ts                              # CLI entrypoint (doctor, tools, setup)
+├── config.ts                           # Environment configuration and schema validation
+├── index.ts                            # Composition root and FastMCP server lifecycle
 ├── core/
-│   ├── cache/cache-service.ts          # LRU Memory Cache (60s TTL)
-│   ├── errors/openproject-error.ts     # Domain Error Hierarchy
-│   ├── http/http-transport.ts          # Axios + Basic/Bearer Auth + Retry
-│   ├── security/access-guard.ts        # Read-only guard & Whitelist check
-│   ├── openproject-client.ts           # Central API client & Auto lockVersion
+│   ├── cache/cache-service.ts          # In-memory LRU cache (60s TTL)
+│   ├── errors/openproject-error.ts     # Domain error hierarchy
+│   ├── http/http-transport.ts          # Axios client with authentication and retries
+│   ├── security/access-guard.ts        # Read-only guard and project allowlist enforcement
+│   ├── openproject-client.ts           # Central API client and lockVersion resolver
 │   └── logger.ts                       # Stderr-only structured logger
 ├── services/
-│   ├── contracts/index.ts              # Service Interfaces
-│   ├── index.ts                        # Central Dependency Injection Container
-│   ├── developer.service.ts            # Developer Shortcuts, Standup, Git & QA Generator
-│   ├── work-packages.service.ts        # Work Packages CRUD, Children, Ancestors, Comments
-│   ├── time-entries.service.ts         # Time Tracking CRUD, ISO formatting, Auditing
-│   ├── projects.service.ts             # Projects CRUD, Statuses, Types, Sprint summary
-│   ├── relations.service.ts            # Relations (blocks, relates, parent/child)
-│   ├── metadata.service.ts             # Statuses, Types, Priorities, Categories
-│   ├── users.service.ts                # Users, Groups, Roles, Memberships
-│   ├── versions.service.ts             # Sprints, Roadmaps, Versions
-│   ├── attachments.service.ts          # Attachments download, upload, delete
-│   └── queries.service.ts              # Saved Queries & Notifications
-├── tools/                              # 10 Declarative MCP Tool Adapter Suites (90 tools)
-├── prompts/                            # 4 AI Prompt Templates
-└── resources/                          # 3 Dynamic URI Resource Templates
+│   ├── contracts/index.ts              # Service interface definitions
+│   ├── index.ts                        # Service dependency injection container
+│   ├── developer.service.ts            # Developer workflows, standup reports, QA generator
+│   ├── work-packages.service.ts        # Work package CRUD, hierarchy, comments
+│   ├── time-entries.service.ts         # Time entry CRUD, ISO duration parsing, auditing
+│   ├── projects.service.ts             # Project management, schemas, sprint summaries
+│   ├── relations.service.ts            # Work package relations (blocks, precedes, parent/child)
+│   ├── metadata.service.ts             # Statuses, types, priorities, categories
+│   ├── users.service.ts                # Users, groups, roles, memberships
+│   ├── versions.service.ts             # Sprints, roadmaps, versions
+│   ├── attachments.service.ts          # File attachments upload, inspection, download
+│   └── queries.service.ts              # Saved queries and notifications
+├── tools/                              # Declarative MCP tool adapters (10 domain suites)
+├── prompts/                            # AI prompt templates
+└── resources/                          # Dynamic URI resource templates
 ```
 
 ---
 
-## 📦 Prerequisites
+## Prerequisites
 
-- **Node.js**: `v20.0.0` or higher (`v22` / `v24` recommended).
-- **OpenProject Instance**: Self-hosted or OpenProject Cloud.
-- **Authentication**: API Key (`My Account` $\rightarrow$ `Access Token` $\rightarrow$ `API`) or OAuth 2.0 Bearer Token.
+- **Node.js**: `v20.0.0` or higher (`v22` LTS recommended).
+- **OpenProject Instance**: OpenProject Cloud or self-hosted OpenProject (v13+).
+- **Authentication**: User API key (`My Account` -> `Access Token` -> `API`) or OAuth 2.0 Bearer token.
 
 ---
 
-## 🛠️ Installation & Quick Start
+## Installation
 
-### 1. Clone and Install Dependencies
+### 1. Clone and Install
 
 ```bash
-git clone <repository-url> openproject-mcp
+git clone https://github.com/Nam088/openproject-mcp.git
 cd openproject-mcp
 npm install
 ```
 
-### 2. Build the Server
+### 2. Build the Package
 
 ```bash
 npm run build
 ```
 
-### 3. Run Diagnostic Doctor
+### 3. Run Diagnostic Verification
 
 ```bash
 export OPENPROJECT_HOST="https://community.openproject.org"
@@ -129,32 +121,32 @@ node dist/index.js doctor
 
 ---
 
-## ⚙️ Configuration Reference
+## Configuration
 
-| Variable                         | CLI Flag            | Default                             | Description                                                           |
-| -------------------------------- | ------------------- | ----------------------------------- | --------------------------------------------------------------------- |
-| `OPENPROJECT_HOST`               | `--host`            | `https://community.openproject.org` | Base URL of your OpenProject instance.                                |
-| `OPENPROJECT_API_KEY`            | `--api-key`         | _None_                              | OpenProject API Key (Basic Auth).                                     |
-| `OPENPROJECT_OAUTH_TOKEN`        | `--oauth-token`     | _None_                              | OAuth 2.0 Bearer Token (Alternative to API Key).                      |
-| `OPENPROJECT_DEFAULT_PROJECT_ID` | `--default-project` | _None_                              | Default project ID or identifier (fallback when omitted).             |
-| `OPENPROJECT_READ_ONLY_MODE`     | `--read-only`       | `false`                             | When `true`, blocks all mutating actions (`POST`, `PATCH`, `DELETE`). |
-| `OPENPROJECT_PROJECT_ALLOWLIST`  | —                   | _None_                              | Comma-separated list of allowed project IDs/identifiers.              |
-| `DEBUG`                          | —                   | `false`                             | Enable verbose debug logging on `process.stderr`.                     |
+| Variable                         | CLI Flag            | Default                             | Description                                                            |
+| :------------------------------- | :------------------ | :---------------------------------- | :--------------------------------------------------------------------- |
+| `OPENPROJECT_HOST`               | `--host`            | `https://community.openproject.org` | Base URL of the OpenProject instance.                                  |
+| `OPENPROJECT_API_KEY`            | `--api-key`         | None                                | OpenProject API Key (Basic Auth).                                      |
+| `OPENPROJECT_OAUTH_TOKEN`        | `--oauth-token`     | None                                | OAuth 2.0 Bearer Token (Alternative to API Key).                       |
+| `OPENPROJECT_DEFAULT_PROJECT_ID` | `--default-project` | None                                | Default fallback project ID or identifier.                             |
+| `OPENPROJECT_READ_ONLY_MODE`     | `--read-only`       | `false`                             | When enabled, blocks all mutating actions (`POST`, `PATCH`, `DELETE`). |
+| `OPENPROJECT_PROJECT_ALLOWLIST`  | None                | None                                | Comma-separated list of permitted project IDs.                         |
+| `DEBUG`                          | None                | `false`                             | Enables verbose diagnostic logging on `process.stderr`.                |
 
 ---
 
-## 🔌 Client Integration Guides
+## Client Integration
 
-### 1. Claude Desktop
+### Claude Desktop
 
-Edit your `claude_desktop_config.json`:
+Add the following to `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "openproject": {
       "command": "node",
-      "args": ["/absolute/path/to/openproject-mcp/dist/index.js"],
+      "args": ["/path/to/openproject-mcp/dist/index.js"],
       "env": {
         "OPENPROJECT_HOST": "https://community.openproject.org",
         "OPENPROJECT_API_KEY": "your_api_key",
@@ -165,16 +157,16 @@ Edit your `claude_desktop_config.json`:
 }
 ```
 
-### 2. Cursor IDE
+### Cursor IDE
 
-In `.cursor/mcp.json` or Global MCP Settings:
+Add the configuration under `.cursor/mcp.json` or Cursor MCP settings:
 
 ```json
 {
   "mcpServers": {
     "openproject": {
       "command": "node",
-      "args": ["/absolute/path/to/openproject-mcp/dist/index.js"],
+      "args": ["/path/to/openproject-mcp/dist/index.js"],
       "env": {
         "OPENPROJECT_HOST": "https://community.openproject.org",
         "OPENPROJECT_API_KEY": "your_api_key",
@@ -185,14 +177,16 @@ In `.cursor/mcp.json` or Global MCP Settings:
 }
 ```
 
-### 3. Google Antigravity & Agentic Tools
+### Google Antigravity
+
+Register within `~/.gemini/config/mcp_config.json`:
 
 ```json
 {
   "mcpServers": {
     "openproject": {
       "command": "node",
-      "args": ["/absolute/path/to/openproject-mcp/dist/index.js"],
+      "args": ["/path/to/openproject-mcp/dist/index.js"],
       "env": {
         "OPENPROJECT_HOST": "https://community.openproject.org",
         "OPENPROJECT_API_KEY": "your_api_key"
@@ -204,22 +198,24 @@ In `.cursor/mcp.json` or Global MCP Settings:
 
 ---
 
-## 💻 CLI Diagnostics & Subcommands
+## CLI Reference
+
+The binary includes diagnostic and utility subcommands:
 
 ```bash
-# 1. Start Server with stdio (Default)
+# Start server with stdio transport (Default)
 node dist/index.js
 
-# 2. Start Server with httpStream (SSE / Port binding)
+# Start server with HTTP stream transport (SSE)
 node dist/index.js --transport httpStream --port 8081
 
-# 3. Run Doctor Diagnostics
+# Run connection and permissions diagnostic
 node dist/index.js doctor
 
-# 4. List all 90 Registered Tools
+# List all registered MCP tools and parameter definitions
 node dist/index.js tools
 
-# 5. Generate Client Configuration
+# Generate client configuration snippets
 node dist/index.js setup --client claude
 node dist/index.js setup --client cursor
 node dist/index.js setup --client antigravity
@@ -227,126 +223,132 @@ node dist/index.js setup --client antigravity
 
 ---
 
-## 🤖 AI Prompts & Resource Templates
+## Tools Catalog
 
-### Prompts
+### 1. Developer Productivity Suite
 
-| Prompt Name                   | Arguments                   | Description                                                                                           |
-| ----------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `task_breakdown_and_estimate` | `work_package_id`           | Analyzes task description and activities, produces structured sub-tasks, WBS, and ISO 8601 durations. |
-| `sprint_planning`             | `project_id`, `version_id?` | Computes sprint metrics (estimated vs spent hours, velocity) and optimizes work allocation.           |
-| `generate_sprint_report`      | `project_id`, `version_id?` | Generates an executive delivery report in Markdown summarizing completed deliverables and spillovers. |
-| `triage_work_package`         | `work_package_id`           | Triages newly reported bugs/tasks with root cause analysis and severity classification.               |
+| Tool                          | Description                                                                                       |
+| :---------------------------- | :------------------------------------------------------------------------------------------------ |
+| `quick_start_task`            | Moves task to "In Progress", assigns to current user, sets progress %, and generates branch name. |
+| `quick_complete_task`         | Moves task to "Resolved", sets 100% completion, logs spent time, and posts resolution comment.    |
+| `get_developer_daily_standup` | Compiles an Agile daily standup report (yesterday completed tasks, today tasks, blockers).        |
+| `get_git_branch_name`         | Generates standardized Git branch name (e.g., `feat/OP-1234-description`).                        |
+| `get_git_commit_template`     | Formats Conventional Commit message referencing OpenProject work package ID.                      |
+| `get_task_dependency_graph`   | Generates Mermaid flowchart of parent-child hierarchy and blocking relations.                     |
+| `generate_qa_checklist`       | Produces comprehensive QA acceptance and PR checklist in Markdown.                                |
 
-### Resources
+### 2. Time Tracking and Auditing Suite
 
-| URI Template                                    | MIME Type          | Description                                                        |
-| ----------------------------------------------- | ------------------ | ------------------------------------------------------------------ |
-| `openproject://projects/{project_id}`           | `application/json` | Real-time project metadata, status, description, and assignees.    |
-| `openproject://work_packages/{work_package_id}` | `application/json` | Real-time work package details, lockVersion, estimated/spent time. |
-| `openproject://time_entries/{time_entry_id}`    | `application/json` | Detailed logged spent time entry with hours, date, and comments.   |
+| Tool                         | Description                                                                           |
+| :--------------------------- | :------------------------------------------------------------------------------------ |
+| `create_time_entry`          | Logs spent time on a task or project (supports decimal hours and ISO 8601 durations). |
+| `list_time_entries`          | Lists logged time entries with date range, user, project, and activity filters.       |
+| `get_time_entry`             | Retrieves a specific time entry by ID.                                                |
+| `update_time_entry`          | Updates hours, date, activity, or comments on an existing entry.                      |
+| `delete_time_entry`          | Permanently removes a time entry.                                                     |
+| `list_time_entry_activities` | Lists available time tracking activity categories (Development, QA, etc.).            |
+| `get_time_entry_activity`    | Retrieves details for an activity category.                                           |
+| `get_time_entries_schema`    | Retrieves field schema definitions for time tracking.                                 |
+| `get_daily_time_summary`     | Evaluates total hours logged for a specific date against target thresholds.           |
+| `audit_unlogged_work`        | Analyzes a date range for unlogged work days and identifies assigned tasks.           |
 
----
+### 3. Work Packages Suite
 
-## 📚 Registered Tools Catalog
+| Tool                             | Description                                                                      |
+| :------------------------------- | :------------------------------------------------------------------------------- |
+| `get_work_package`               | Retrieves work package details (supports `compact: true` and field projections). |
+| `list_work_packages`             | Lists work packages with filters, sorting, and pagination.                       |
+| `create_work_package`            | Creates a new task, bug, or feature within a project.                            |
+| `update_work_package`            | Modifies work package attributes (auto-resolves `lockVersion`).                  |
+| `delete_work_package`            | Deletes a work package by ID.                                                    |
+| `get_work_package_schema`        | Inspects schema constraints and allowable values.                                |
+| `list_work_package_children`     | Lists direct sub-tasks for a given parent task.                                  |
+| `list_work_package_ancestors`    | Lists ancestor chain leading to the root work package.                           |
+| `list_comments`                  | Retrieves activity comments for a work package.                                  |
+| `add_comment`                    | Posts a new activity comment to a work package.                                  |
+| `list_work_packages_assigned_to` | Lists tasks assigned to a specific user or `me`.                                 |
+| `list_work_packages_created_by`  | Lists tasks created by a specific user or `me`.                                  |
+| `list_overdue_work_packages`     | Filters tasks past their due date that are not closed.                           |
+| `list_work_packages_by_date`     | Filters tasks scheduled for or due on a specific date.                           |
+| `list_work_packages_for_version` | Filters tasks mapped to a specific release version or milestone.                 |
+| `export_work_packages`           | Exports filtered work packages to JSON, CSV, or formatted text.                  |
 
-### 10. Developer Productivity Suite (7 Tools)
-
-- `quick_start_task`: 1-step start task (moves status to In Progress, assigns to you, sets %, generates git branch).
-- `quick_complete_task`: 1-step complete task (moves status to Resolved, sets 100%, logs spent hours, posts comment).
-- `get_developer_daily_standup`: Auto-generates complete Agile Daily Standup report (Yesterday / Today / Blockers).
-- `get_git_branch_name`: Generates clean standardized git branch name (e.g. `feat/OP-1234-support-oauth`).
-- `get_git_commit_template`: Generates Conventional Commit template referencing OpenProject task ID.
-- `get_task_dependency_graph`: Renders interactive **Mermaid flowchart diagram** of task dependencies & blockers.
-- `generate_qa_checklist`: Auto-generates exhaustive QA & PR acceptance checklist in Markdown.
-
-### 2. Time Tracking & Auditing Suite (10 Tools)
-
-- `get_daily_time_summary`: Checks time logged today, compares with target (8h), identifies unlogged assigned tasks, and provides suggestions.
-- `audit_unlogged_work`: Audits a date range for missing or under-logged days, and suggests open tasks to log time against.
-- `create_time_entry`: Log spent time on a task/project (accepts decimal numbers or ISO format).
-- `list_time_entries`: List time entries with date range, user, and activity filters.
-- `get_time_entry`: Get details of a logged spent time entry.
-- `update_time_entry`: Update logged hours, date, activity, or comments.
-- `delete_time_entry`: Delete a time entry.
-- `list_time_entry_activities`: List available activity categories (Development, Testing, etc.).
-- `get_time_entry_activity`: Get activity category details by ID.
-- `get_time_entries_schema`: Inspect schema definitions for time tracking.
-
-### 1. Work Packages Suite (16 Tools)
-
-- `get_work_package`: Retrieve work package details by ID.
-- `list_work_packages`: List work packages with filters, sorting, and pagination.
-- `create_work_package`: Create a new task/bug/feature in a project.
-- `update_work_package`: Update task fields (auto-resolves `lockVersion`).
-- `delete_work_package`: Delete a work package.
-- `get_work_package_schema`: Retrieve field schema definitions.
-- `list_work_package_children`: List direct child sub-tasks.
-- `list_work_package_ancestors`: List ancestor parent work packages.
-- `list_comments`: List activity stream and comments for a task.
-- `add_comment`: Add a new comment to a work package.
-- `list_work_packages_assigned_to`: List tasks assigned to a user or 'me'.
-- `list_work_packages_created_by`: List tasks created by a user or 'me'.
-- `list_overdue_work_packages`: List overdue tasks where dueDate < today.
-- `list_work_packages_by_date`: List tasks due on a specific date.
-- `list_work_packages_for_version`: List tasks assigned to a sprint/milestone.
-- `export_work_packages`: Export tasks as JSON, CSV, or PDF.
-
-### 3. Projects Suite (12 Tools)
+### 4. Projects Suite
 
 - `get_project`, `list_projects`, `create_project`, `update_project`, `delete_project`, `list_project_statuses`, `list_available_assignees`, `list_available_statuses`, `list_categories`, `list_versions`, `list_types`, `get_sprint_summary`.
 
-### 4. Relations Suite (4 Tools)
+### 5. Relations Suite
 
 - `list_relations`, `get_relation`, `create_relation`, `delete_relation`.
 
-### 5. Metadata Suite (8 Tools)
+### 6. Metadata Suite
 
 - `list_statuses`, `get_status`, `list_all_types`, `get_type`, `list_priorities`, `get_priority`, `list_all_categories`, `get_category`.
 
-### 6. Users & Memberships (16 Tools)
+### 7. Users and Memberships Suite
 
 - `list_users`, `get_user`, `create_user`, `update_user`, `delete_user`, `list_memberships`, `add_membership`, `update_membership`, `delete_membership`, `list_roles`, `list_groups`, `get_group`, `create_group`, `update_group`, `delete_group`, `list_principals`.
 
-### 7. Versions Suite (5 Tools)
+### 8. Versions Suite
 
 - `list_all_versions`, `get_version`, `create_version`, `update_version`, `delete_version`.
 
-### 8. Attachments Suite (3 Tools)
+### 9. Attachments Suite
 
 - `get_attachment`, `delete_attachment`, `view_attachment_content`.
 
-### 9. Queries & Notifications (9 Tools)
+### 10. Saved Queries and Notifications
 
 - `list_queries`, `get_query`, `list_notifications`, `mark_notifications_read`, `list_watchers`, `add_watcher`, `remove_watcher`, `list_budgets`, `get_budget`.
 
 ---
 
-## 🧪 Testing & Quality Assurance
+## AI Prompts and Resources
 
-```bash
-# Run all unit tests
-npm test
+### Prompts
 
-# Run tests with V8 coverage report
-npm run test:coverage
+| Prompt Name                   | Parameters                  | Description                                                              |
+| :---------------------------- | :-------------------------- | :----------------------------------------------------------------------- |
+| `task_breakdown_and_estimate` | `work_package_id`           | Decomposes a task into structured WBS sub-tasks with ISO durations.      |
+| `sprint_planning`             | `project_id`, `version_id?` | Computes backlog capacity, estimated vs actual hours, and allocation.    |
+| `generate_sprint_report`      | `project_id`, `version_id?` | Generates a markdown delivery summary of completed tasks and spillovers. |
+| `triage_work_package`         | `work_package_id`           | Classifies incoming issues, analyzes scope, and suggests priorities.     |
 
-# Run strict TypeScript type check
-npm run typecheck
+### Resources
 
-# Run linter & formatter
-npm run lint:fix && npm run format
-```
-
-### Coverage Benchmark
-
-- **Line Coverage**: **91.1%**
-- **Statement Coverage**: **90.2%**
-- **Function Coverage**: **95.6%**
-- **Active Tests**: **31/31 passed across 13 test suites**
+| URI Template                                    | MIME Type          | Description                                                            |
+| :---------------------------------------------- | :----------------- | :--------------------------------------------------------------------- |
+| `openproject://projects/{project_id}`           | `application/json` | Real-time project metadata, status, description, and assignees.        |
+| `openproject://work_packages/{work_package_id}` | `application/json` | Real-time work package state, lockVersion, estimates, and description. |
+| `openproject://time_entries/{time_entry_id}`    | `application/json` | Detailed spent time entry data, date, activity, and notes.             |
 
 ---
 
-## 📄 License
+## Development and Testing
+
+```bash
+# Run test suite
+npm test
+
+# Run test suite with V8 code coverage
+npm run test:coverage
+
+# Run TypeScript static typecheck
+npm run typecheck
+
+# Execute linter and formatter
+npm run lint:fix && npm run format
+```
+
+### Test Coverage Baseline
+
+- **Line Coverage**: 91.1%
+- **Statement Coverage**: 90.2%
+- **Function Coverage**: 95.6%
+- **Automated Tests**: 32 passing across 13 test suites
+
+---
+
+## License
 
 This project is licensed under the [MIT License](LICENSE).

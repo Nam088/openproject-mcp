@@ -358,24 +358,18 @@ export class WorkPackagesService implements IWorkPackagesService {
   public async addWorkPackageComment(
     id: number,
     comment: string,
-    lockVersion?: number
+    _lockVersion?: number
   ): Promise<unknown> {
-    const payload: Record<string, unknown> = {
+    return this.client.post(`/work_packages/${id}/activities`, {
       comment: {
-        format: 'markdown',
         raw: comment,
       },
-    };
-    if (lockVersion !== undefined) {
-      payload.lockVersion = lockVersion;
-    }
-    return this.client.patchWorkPackageWithLock(id, payload);
+    });
   }
 
   public async updateWorkPackageComment(activityId: number, comment: string): Promise<unknown> {
     return this.client.patch(`/activities/${activityId}`, {
       comment: {
-        format: 'markdown',
         raw: comment,
       },
     });
